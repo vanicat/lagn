@@ -76,3 +76,20 @@
 (defun xmms2-list ()
   (interactive)
   (xmms2-call 'xmms2-callback-list "list"))
+
+(defun xmms2-callback-ok (response)
+  ())
+
+(defmacro xmms2-simple (command)
+  (let ((command-name (intern (concat "xmms2-" command))))
+    `(defun ,command-name ()
+       (interactive)
+       (xmms2-call 'xmms2-callback-ok ,command))))
+
+(xmms2-simple "play")
+(xmms2-simple "pause")
+(xmms2-simple "stop")
+(xmms2-simple "toggle")
+(xmms2-simple "next")
+(xmms2-simple "prev")
+
