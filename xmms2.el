@@ -23,6 +23,11 @@
 (defvar xmms2-now-playing nil
   "The song that is being played now")
 
+(defvar xmms2-status nil
+  "The status of xmms2, a symbol
+can be paused, stopped, playing or nil
+nil mean that there is noconnection or there was an error")
+
 (defgroup xmms2 ()
   "xmms2.el is a client for xmms2 written in emacs lisp")
 
@@ -73,6 +78,16 @@
 
 (defun xmms2-callback-status (response)
   (setq xmms2-now-playing response)
+  (unless (string-match "^\\(Paused\\|Stopped\\|Playing\\):" response)
+    (setq xmms2-status ())
+    (error "wrong status message"))
+  (cond
+    ((string= (match-string 1 response) "Playing")
+     (setq xmms2-status 'playing))
+    ((string= (match-string 1 response) "Paused")
+     (setq xmms2-status 'paused))
+    ((string= (match-string 1 response) "Stopped")
+     (setq xmms2-status 'stopped)))
   (message response))
 
 (defun xmms2-status ()
