@@ -64,6 +64,19 @@ nil mean that there is noconnection or there was an error")
 	(setq artist (match-string 1)))
       (list id artist album title url))))
 
+(defun xmms2-decode-list (string)
+  (with-temp-buffer
+    (insert string)
+    (goto-char (point-min))
+    (let (current-pos id rest list)
+      (while (search-forward-regexp "^\\(->\\|  \\)\\[\\([0-9]+\\)/\\([0-9]+\\)\\] \\(.*\\)$" () t)
+	(when (string= (match-string 1) "->")
+	  (setq current-pos (string-to-number (match-string 2))))
+	(setq id (string-to-number (match-string 3)))
+	(setq rest (match-string 4))
+	(push (list id rest) list))
+      (cons current-pos (nreverse list)))))
+
 
 ;;; function for the connection itself
 
