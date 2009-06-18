@@ -60,3 +60,19 @@
     (process-send-string xmms2-process string)
     (process-send-string xmms2-process "\n")
     (setq xmms2-callback-queue (append xmms2-callback-queue (list callback)))))
+
+(defun xmms2-callback-status (response)
+  (setq xmms2-now-playing response)
+  (message response))
+
+(defun xmms2-status ()
+  (interactive)
+  (xmms2-call 'xmms2-callback-status "status"))
+
+(defun xmms2-callback-list (response)
+  (setq xmms2-playlist response)
+  (message response))
+
+(defun xmms2-list ()
+  (interactive)
+  (xmms2-call 'xmms2-callback-list "list"))
