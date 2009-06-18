@@ -41,6 +41,31 @@ nil mean that there is noconnection or there was an error")
 (defvar xmms2-callback-queue ()
   "queue of callback to be run from the filter")
 
+
+(defun xmms2-decode-info (info)
+  (with-temp-buffer
+    (insert info)
+    (goto-char (point-min))
+    (let (id title album artist url)
+      (search-forward-regexp "] id = \\([0-9]+\\)$")
+      (setq id (string-to-number (match-string 1)))
+      (goto-char (point-min))
+      (search-forward-regexp "] url = \\([^\n]+\\)$")
+      (setq url (match-string 1))
+      (goto-char (point-min))
+      (when (search-forward-regexp "] title = \\([^\n]+\\)$" () t)
+	(setq title (match-string 1)))
+      (goto-char (point-min))
+      (when (search-forward-regexp "] album = \\([^\n]+\\)$" () t)
+	(setq album (match-string 1)))
+      (goto-char (point-min))
+      (when (search-forward-regexp "] artist = \\([^\n]+\\)$" () t)
+	(setq artist (match-string 1)))
+      (list id artist album title url))))
+
+
+
+
 (defun xmms2-process-sentinel (proc event)
   (with-current-buffer (process-buffer xmms2-process)
     (delete-region (point-min) (point-max))
