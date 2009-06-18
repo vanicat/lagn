@@ -86,12 +86,17 @@ nil mean that there is noconnection or there was an error")
 
 ;;; function for the connection itself
 
+(defun xmms2-clean ()
+  (when (processp xmms2-process)
+    (with-current-buffer (process-buffer xmms2-process)
+      (delete-region (point-min) (point-max))
+      (setq xmms2-callback-queue ())
+      (setq xmms2-process ()))))
+
 
 (defun xmms2-process-sentinel (proc event)
-  (with-current-buffer (process-buffer xmms2-process)
-    (delete-region (point-min) (point-max))
-    (setq xmms2-callback-queue ())
-    (setq xmms2-process ())))
+  ;; Is this only called when the process died ?
+  (xmms2-clean))
 
 (defun xmms2-process-filter (proc str)
   (with-current-buffer (process-buffer xmms2-process)
@@ -108,14 +113,20 @@ nil mean that there is noconnection or there was an error")
   (message response))
 
 (defun xmms2-init-process ()		;TODO: add option for server and such
-  (interactive)				;TODO; should not be the entry for xmms2
   (setq xmms2-process (start-process "nyxmms2" " *nyxmms2*" xmms2-command))
   (setq xmms2-callback-queue (append xmms2-callback-queue (list 'xmms2-callback-message)))
   (set-process-filter xmms2-process 'xmms2-process-filter)
   (set-process-sentinel xmms2-process 'xmms2-process-sentinel)
   (xmms2-status))
 
+(defun xmms2-ensure-connected ()
+  (unless (and xmms2-process
+	       (eq (process-status xmms2-process)
+		   'run))
+    (xmms2-init-process)))
+
 (defun xmms2-call (callback command &rest args)
+  (xmms2-ensure-connected)
   (let ((string (format command args)))
     (process-send-string xmms2-process string)
     (process-send-string xmms2-process "\n")
