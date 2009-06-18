@@ -102,8 +102,10 @@ nil mean that there is noconnection or there was an error")
 (defun xmms2-exit-process ()
   (xmms2-call 'ignore "exit"))
 
+(defun xmms2-callback-current-info (response)
+  (setq xmms2-now-playing (xmms2-decode-info response)))
+
 (defun xmms2-callback-status (response)
-  (setq xmms2-now-playing response)
   (unless (string-match "^\\(Paused\\|Stopped\\|Playing\\):" response)
     (setq xmms2-status ())
     (error "wrong status message"))
@@ -118,7 +120,8 @@ nil mean that there is noconnection or there was an error")
 
 (defun xmms2-status ()
   (interactive)
-  (xmms2-call 'xmms2-callback-status "status"))
+  (xmms2-call 'xmms2-callback-status "status")
+  (xmms2-call 'xmms2-callback-current-info "info"))
 
 (defun xmms2-callback-list (response)
   (setq xmms2-playlist response)
