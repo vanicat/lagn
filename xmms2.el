@@ -18,7 +18,13 @@
 ;;     Boston, MA 02110-1301 USA
 
 (defvar xmms2-playlist nil
-  "The xmms2 playlist, an list of (ID ARTIST ALBUM TITLE) for the current playlist")
+  "The xmms2 playlist,
+Its format is
+  (POS LIST)
+where POS is the current position and LIST is a list of
+  (ID ARTIST ALBUM TITLE URL)
+Where ID is the xmms2 id of the song, and ARTIST ALBUM TITLE maybe be nil
+if xmms2 doesn't know them")
 
 (defvar xmms2-now-playing nil
   "The song that is being played now")
