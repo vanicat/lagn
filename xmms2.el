@@ -61,6 +61,9 @@
     (process-send-string xmms2-process "\n")
     (setq xmms2-callback-queue (append xmms2-callback-queue (list callback)))))
 
+(defun xmms2-exit-process ()
+  (xmms2-call 'ignore "exit"))
+
 (defun xmms2-callback-status (response)
   (setq xmms2-now-playing response)
   (message response))
