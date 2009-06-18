@@ -108,6 +108,7 @@ nil mean that there is noconnection or there was an error")
   (message response))
 
 (defun xmms2-init-process ()		;TODO: add option for server and such
+  (interactive)				;TODO; should not be the entry for xmms2
   (setq xmms2-process (start-process "nyxmms2" " *nyxmms2*" xmms2-command))
   (setq xmms2-callback-queue (append xmms2-callback-queue (list 'xmms2-callback-message)))
   (set-process-filter xmms2-process 'xmms2-process-filter)
