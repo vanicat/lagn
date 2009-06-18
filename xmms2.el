@@ -184,8 +184,7 @@ nil mean that there is noconnection or there was an error")
   (xmms2-call 'xmms2-callback-current-info "info"))
 
 (defun xmms2-callback-list (response)
-  (setq xmms2-playlist response)
-  (message response))
+  (setq xmms2-playlist (xmms2-decode-list response)))
 
 (defun xmms2-list ()
   (interactive)
