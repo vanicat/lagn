@@ -41,6 +41,7 @@ nil mean that there is noconnection or there was an error")
 (defvar xmms2-callback-queue ()
   "queue of callback to be run from the filter")
 
+;;; some function to read anwser from nyxmms2
 
 (defun xmms2-decode-info (info)
   (with-temp-buffer
@@ -64,6 +65,7 @@ nil mean that there is noconnection or there was an error")
       (list id artist album title url))))
 
 
+;;; function for the connection itself
 
 
 (defun xmms2-process-sentinel (proc event)
@@ -98,6 +100,8 @@ nil mean that there is noconnection or there was an error")
     (process-send-string xmms2-process string)
     (process-send-string xmms2-process "\n")
     (setq xmms2-callback-queue (append xmms2-callback-queue (list callback)))))
+
+;;; the commands
 
 (defun xmms2-exit-process ()
   (xmms2-call 'ignore "exit"))
