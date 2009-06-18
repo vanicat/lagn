@@ -17,6 +17,31 @@
 ;;     Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 ;;     Boston, MA 02110-1301 USA
 
+;;; Commentary
+
+;; For know, only some command for simple control of xmms2.
+
+;; you can use xmms2-status to know what is playing and
+;; xmm2-play/xmm2-toggle/xmm2-pause/xmm2-stop/xmm2-next/xmm2-prev to
+;; control xmms2
+
+;; Installing :
+;; put this file in some direcories in your load path
+;; add (require 'xmms2) to you .emacs
+
+;; you can also add keybinding: for example, for my multimedia keys:
+
+;; (global-set-key [<XF86AudioPlay>] 'xmms2-toggle)
+;; (global-set-key [<XF86Back>] 'xmms2-prev)
+;; (global-set-key [<XF86Forward>] 'xmms2-next)
+
+;;; TODO
+;; a mode to view/edit playlists
+;; a mode to view/edit collection
+;; a mode to view current status
+;; maybe status bar integration
+
+
 (defvar xmms2-playlist nil
   "The xmms2 playlist,
 Its format is
@@ -182,3 +207,4 @@ nil mean that there is noconnection or there was an error")
 (xmms2-simple "next")
 (xmms2-simple "prev")
 
+(provide 'xmms2)
