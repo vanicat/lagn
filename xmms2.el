@@ -36,6 +36,12 @@
 (defvar xmms2-callback-queue ()
   "queue of callback to be run from the filter")
 
+(defun xmms2-process-sentinel (proc event)
+  (with-current-buffer (process-buffer xmms2-process)
+    (delete-region (point-min) (point-max))
+    (setq xmms2-callback-queue ())
+    (setq xmms2-process ())))
+
 (defun xmms2-process-filter (proc str)
   (with-current-buffer (process-buffer xmms2-process)
     (goto-char (process-mark xmms2-process))
@@ -53,7 +59,8 @@
 (defun xmms2-init-process ()		;TODO: add option for server and such
   (setq xmms2-process (start-process "nyxmms2" " *nyxmms2*" xmms2-command))
   (setq xmms2-callback-queue (append xmms2-callback-queue (list 'xmms2-callback-message)))
-  (set-process-filter xmms2-process 'xmms2-process-filter))
+  (set-process-filter xmms2-process 'xmms2-process-filter)
+  (set-process-sentinel xmms2-process 'xmms2-process-sentinel))
 
 (defun xmms2-call (callback command &rest args)
   (let ((string (format command args)))
