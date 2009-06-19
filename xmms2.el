@@ -156,7 +156,7 @@ nil mean that there is noconnection or there was an error")
 
 (defun xmms2-call (callback command &rest args)
   (xmms2-ensure-connected)
-  (let ((string (format command args)))
+  (let ((string (apply 'format command args)))
     (process-send-string xmms2-process string)
     (process-send-string xmms2-process "\n")
     (setq xmms2-callback-queue (append xmms2-callback-queue (list callback)))))
