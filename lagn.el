@@ -22,11 +22,24 @@
 
 ;; For know, only some command for simple control of xmms2.
 
-;; you can use lagn-status to know what is playing and
-;; lagn-play/lagn-toggle/lagn-pause/lagn-stop/lagn-next/lagn-prev to
-;; control xmms2
+;; You can use lagn-list to have the current playlist.
+;;
+;; It create a *Playlist* buffer, with the following key
+;;  SPC		lagn-toggle  (that is play/pause)
+;;  g		lagn-list
+;;  n		lagn-next
+;;  p		lagn-prev
+;;  s		lagn-stop
 
-;; Installing :
+;; you can also directly use M-x lagn-play to start playback, and
+;; M-x lagn-status to see the current playing situation
+
+;; note that there is no automatic update on the Playlist for now
+
+;; note also that I won't recommand it for manipulating big playlist
+
+;;; Installing:
+
 ;; put this file in some direcories in your load path
 ;; add (require 'lagn) to you .emacs
 
@@ -37,7 +50,9 @@
 ;; (global-set-key [<XF86Forward>] 'lagn-next)
 
 ;;; TODO
-;; a mode to view/edit playlists
+;; searching
+;; edit current playlist
+;; a mode to view/edit other playlist
 ;; a mode to view/edit collection
 ;; a mode to view current status
 ;; maybe status bar integration
