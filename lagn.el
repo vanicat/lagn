@@ -366,6 +366,25 @@ nil mean that there is noconnection or there was an error")
 
 (put 'lagn-playlist-mode 'mode-class 'special)
 
+(defun lagn-playlist-middle-click (event)
+  (interactive "e")
+  (let (window pos num)
+    (save-excursion
+      (setq window (posn-window (event-end event))
+	    pos (posn-point (event-end event)))
+      (if (not (windowp window))
+	  (error "No song selected"))
+      (with-current-buffer (window-buffer window)
+	(setq num (get-text-property pos 'lagn-num))
+	(lagn-jump num)))))
+
+(defun lagn-playlist-jump ()
+  (interactive)
+  (lagn-jump (get-text-property (point) 'lagn-num)))
+
+(defun lagn-playlist-remove ()
+  (interactive)
+  (lagn-remove (get-text-property (point) 'lagn-num)))
 
 (progn					;should not be done on reload
   (suppress-keymap lagn-playlist-mode-map)
@@ -374,7 +393,10 @@ nil mean that there is noconnection or there was an error")
   (define-key lagn-playlist-mode-map "p" 'lagn-prev)
   (define-key lagn-playlist-mode-map "s" 'lagn-stop)
   (define-key lagn-playlist-mode-map "n" 'lagn-next)
-  (define-key lagn-playlist-mode-map "g" 'lagn-list))
+  (define-key lagn-playlist-mode-map "g" 'lagn-list)
+  (define-key lagn-playlist-mode-map "\\r" 'lagn-playlist-jump)
+  (define-key lagn-playlist-mode-map "d" 'lagn-playlist-remove)
+  (define-key lagn-playlist-mode-map [mouse-2] 'lagn-playlist-middle-click))
 
 
 (provide 'lagn)
