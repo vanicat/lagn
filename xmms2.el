@@ -74,6 +74,7 @@ nil mean that there is noconnection or there was an error")
 (defvar xmms2-callback-queue ()
   "queue of callback to be run from the filter")
 
+
 ;;; some function to read anwser from nyxmms2
 
 (defun xmms2-decode-info (info)
@@ -98,6 +99,7 @@ nil mean that there is noconnection or there was an error")
       (setq result (list id artist album title url))
       (puthash id result xmms2-info-cache)
       result)))
+
 
 (defun xmms2-decode-list (string)
   (with-temp-buffer
@@ -130,6 +132,7 @@ nil mean that there is noconnection or there was an error")
   ;; Is this only called when the process died ?
   (xmms2-clean))
 
+
 (defun xmms2-process-filter (proc str)
   (with-current-buffer (process-buffer xmms2-process)
     (goto-char (process-mark xmms2-process))
@@ -141,8 +144,10 @@ nil mean that there is noconnection or there was an error")
 	(delete-region (point-min) (match-end 0))
 	(apply (pop xmms2-callback-queue) (list response))))))
 
+
 (defun xmms2-callback-message (response)
   (message response))
+
 
 (defun xmms2-init-process ()		;TODO: add option for server and such
   (setq xmms2-process (start-process "nyxmms2" " *nyxmms2*" xmms2-command))
@@ -151,11 +156,13 @@ nil mean that there is noconnection or there was an error")
   (set-process-sentinel xmms2-process 'xmms2-process-sentinel)
   (xmms2-status))
 
+
 (defun xmms2-ensure-connected ()
   (unless (and xmms2-process
 	       (eq (process-status xmms2-process)
 		   'run))
     (xmms2-init-process)))
+
 
 (defun xmms2-call (callback command &rest args)
   (xmms2-ensure-connected)
@@ -164,13 +171,16 @@ nil mean that there is noconnection or there was an error")
     (process-send-string xmms2-process "\n")
     (setq xmms2-callback-queue (append xmms2-callback-queue (list callback)))))
 
+
 ;;; the commands
 
 (defun xmms2-exit-process ()
   (xmms2-call 'ignore "exit"))
 
+
 (defun xmms2-callback-current-info (response)
   (setq xmms2-now-playing (xmms2-decode-info response)))
+
 
 (defun xmms2-callback-status (response)
   (unless (string-match "^\\(Paused\\|Stopped\\|Playing\\):" response)
@@ -185,10 +195,12 @@ nil mean that there is noconnection or there was an error")
      (setq xmms2-status 'stopped)))
   (message response))
 
+
 (defun xmms2-status ()
   (interactive)
   (xmms2-call 'xmms2-callback-status "status")
   (xmms2-call 'xmms2-callback-current-info "info"))
+
 
 (defun xmms2-song-string (song)
   (if (listp (cdr song))
@@ -228,13 +240,16 @@ nil mean that there is noconnection or there was an error")
 	(setq num (1+ num)))
       (goto-char current-point))))
 
+
 (defun xmms2-list ()
   (interactive)
   (switch-to-buffer (xmms2-playlist-buffer))
   (xmms2-call 'xmms2-callback-list "list"))
 
+
 (defun xmms2-callback-ok (response)
   ())
+
 
 (defmacro xmms2-simple (command)
   (let ((command-name (intern (concat "xmms2-" command))))
@@ -248,6 +263,7 @@ nil mean that there is noconnection or there was an error")
 (xmms2-simple "toggle")
 (xmms2-simple "next")
 (xmms2-simple "prev")
+
 
 (defun xmms2-callback-info (result)
   (let ((song (xmms2-decode-info result)))
@@ -264,8 +280,10 @@ nil mean that there is noconnection or there was an error")
 	    (delete-region (point)
 			   (1- (next-single-property-change beg 'xmms-id () (point-max))))))))))
 
+
 (defun xmms2-info (id)
   (xmms2-call 'xmms2-callback-info "info id:%d" id))
+
 
 ;;; The main playlist
 
