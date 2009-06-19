@@ -295,12 +295,15 @@ nil mean that there is noconnection or there was an error")
 	(xmms2-playlist-mode)))
     buffer))
 
+
 (define-derived-mode xmms2-playlist-mode special-mode
   "Playlist"
   "Major mode for xmm2 playlist
 
 \\{xmms2-playlist-mode-map}"
-  :group 'xmms2)
+  :group 'xmms2
+  (setq buffer-undo-list t))
+
 
 (progn					;should not be done on reload
   (suppress-keymap xmms2-playlist-mode-map)
