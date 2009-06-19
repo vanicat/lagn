@@ -103,13 +103,13 @@ nil mean that there is noconnection or there was an error")
   (with-temp-buffer
     (insert string)
     (goto-char (point-min))
-    (let (current-pos id rest list)
+    (let (current-pos id result list)
       (while (search-forward-regexp "^\\(->\\|  \\)\\[\\([0-9]+\\)/\\([0-9]+\\)\\] \\(.*\\)$" () t)
 	(when (string= (match-string 1) "->")
 	  (setq current-pos (string-to-number (match-string 2))))
 	(setq id (string-to-number (match-string 3)))
-	(setq rest (match-string 4))
-	(push (list id rest) list))
+	(setq result (gethash id xmms2-info-cache (cons id (match-string 4))))
+	(push result list))
       (cons current-pos (nreverse list)))))
 
 
