@@ -59,6 +59,8 @@ if xmms2 doesn't know them")
 can be paused, stopped, playing or nil
 nil mean that there is noconnection or there was an error")
 
+(defvar xmms2-info-cache (make-hash-table :weakness 'value))
+
 (defgroup xmms2 ()
   "xmms2.el is a client for xmms2 written in emacs lisp")
 
@@ -78,7 +80,7 @@ nil mean that there is noconnection or there was an error")
   (with-temp-buffer
     (insert info)
     (goto-char (point-min))
-    (let (id title album artist url)
+    (let (id title album artist url result)
       (search-forward-regexp "] id = \\([0-9]+\\)$")
       (setq id (string-to-number (match-string 1)))
       (goto-char (point-min))
@@ -93,7 +95,9 @@ nil mean that there is noconnection or there was an error")
       (goto-char (point-min))
       (when (search-forward-regexp "] artist = \\([^\n]+\\)$" () t)
 	(setq artist (match-string 1)))
-      (list id artist album title url))))
+      (setq result (list id artist album title url))
+      (puthash id result xmms2-info-cache)
+      result)))
 
 (defun xmms2-decode-list (string)
   (with-temp-buffer
