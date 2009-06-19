@@ -243,6 +243,7 @@ nil mean that there is noconnection or there was an error")
 
 (defun xmms2-list ()
   (interactive)
+  (xmms2-status)
   (switch-to-buffer (xmms2-playlist-buffer))
   (xmms2-call 'xmms2-callback-list "list"))
 
