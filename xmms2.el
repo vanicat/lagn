@@ -250,7 +250,19 @@ nil mean that there is noconnection or there was an error")
 (xmms2-simple "prev")
 
 (defun xmms2-callback-info (result)
-  (xmms2-decode-info result))
+  (let ((song (xmms2-decode-info result)))
+    (with-current-buffer (xmms2-playlist-buffer)
+      (save-excursion
+	(let* ((beg (text-property-any (point-min) (point-max) 'xmms-id (car song)))
+	       (num (get-text-property beg 'xmms-num))
+	       (buffer-read-only ()))
+	  (when beg
+	    (goto-char (+ 3 beg))
+	    (insert (propertize (xmms2-song-string song)
+				'xmms-id (car song)
+				'xmms-num num))
+	    (delete-region (point)
+			   (1- (next-single-property-change beg 'xmms-id () (point-max))))))))))
 
 (defun xmms2-info (id)
   (xmms2-call 'xmms2-callback-info "info id:%d" id))
