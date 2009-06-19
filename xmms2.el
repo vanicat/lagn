@@ -108,7 +108,10 @@ nil mean that there is noconnection or there was an error")
 	(when (string= (match-string 1) "->")
 	  (setq current-pos (string-to-number (match-string 2))))
 	(setq id (string-to-number (match-string 3)))
-	(setq result (gethash id xmms2-info-cache (cons id (match-string 4))))
+	(setq result (gethash id xmms2-info-cache))
+	(unless result
+	  (setq result (cons id (match-string 4)))
+	  (xmms2-info id))
 	(push result list))
       (cons current-pos (nreverse list)))))
 
@@ -245,6 +248,12 @@ nil mean that there is noconnection or there was an error")
 (xmms2-simple "toggle")
 (xmms2-simple "next")
 (xmms2-simple "prev")
+
+(defun xmms2-callback-info (result)
+  (xmms2-decode-info result))
+
+(defun xmms2-info (id)
+  (xmms2-call 'xmms2-callback-info "info id:%d" id))
 
 ;;; The main playlist
 
