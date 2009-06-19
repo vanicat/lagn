@@ -170,6 +170,7 @@ nil mean that there is noconnection or there was an error")
   (setq lagn-callback-queue (append lagn-callback-queue (list 'lagn-callback-message)))
   (set-process-filter lagn-process 'lagn-process-filter)
   (set-process-sentinel lagn-process 'lagn-process-sentinel)
+  (set-process-query-on-exit-flag lagn-process ())
   (lagn-status))
 
 
