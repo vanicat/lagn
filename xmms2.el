@@ -320,7 +320,8 @@ nil mean that there is noconnection or there was an error")
 
 \\{xmms2-playlist-mode-map}"
   :group 'xmms2
-  (setq buffer-undo-list t))
+  (setq buffer-undo-list t)
+  (setq truncate-lines t))
 
 
 (progn					;should not be done on reload
