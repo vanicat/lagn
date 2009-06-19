@@ -332,7 +332,9 @@ nil mean that there is noconnection or there was an error")
     buffer))
 
 
-(define-derived-mode lagn-playlist-mode special-mode
+
+
+(define-derived-mode lagn-playlist-mode ()
   "Playlist"
   "Major mode for lagn playlist
 
@@ -340,6 +342,8 @@ nil mean that there is noconnection or there was an error")
   :group 'lagn
   (setq buffer-undo-list t)
   (setq truncate-lines t))
+
+(put 'lagn-playlist-mode 'mode-class 'special)
 
 
 (progn					;should not be done on reload
