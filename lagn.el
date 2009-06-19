@@ -361,7 +361,8 @@ nil mean that there is noconnection or there was an error")
 \\{lagn-playlist-mode-map}"
   :group 'lagn
   (setq buffer-undo-list t)
-  (setq truncate-lines t))
+  (setq truncate-lines t)
+  (setq buffer-read-only t))
 
 (put 'lagn-playlist-mode 'mode-class 'special)
 
