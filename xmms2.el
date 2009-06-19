@@ -187,6 +187,16 @@ nil mean that there is noconnection or there was an error")
   (xmms2-call 'xmms2-callback-status "status")
   (xmms2-call 'xmms2-callback-current-info "info"))
 
+(defun xmms2-song-string (song)
+  (if (listp (cdr song))
+      (let ((artist (propertize (nth 1 song) 'face 'xmms2-artist))
+	    (album (propertize (nth 2 song) 'face 'xmms2-album))
+	    (title (propertize (nth 3 song) 'face 'xmms2-title)))
+	(format "%s\n\tby %s from %s" title artist album))
+      (propertize (cdr song) 'face 'xmms2-song)))
+
+
+
 (defun xmms2-callback-list (response)
   (setq xmms2-playlist (xmms2-decode-list response))
   (with-current-buffer (xmms2-playlist-buffer)
@@ -196,28 +206,24 @@ nil mean that there is noconnection or there was an error")
 	  (song-string)
 	  (current-marker)
 	  (current (car xmms2-playlist)))
-	(delete-region (point-min) (point-max))
-	(goto-char (point-min))
-	(insert (cond ((eq xmms2-status 'playing) "Playing")
-		      ((eq xmms2-status 'paused) "Paused")
-		      ((eq xmms2-status 'stopped) "Stopped")
-		      ('t "Unkown")))
-	(insert "\n\n")
+      (delete-region (point-min) (point-max))
+      (goto-char (point-min))
+      (insert (cond ((eq xmms2-status 'playing) "Playing")
+		    ((eq xmms2-status 'paused) "Paused")
+		    ((eq xmms2-status 'stopped) "Stopped")
+		    ('t "Unkown")))
+      (insert "\n\n")
 
-	(dolist (song (cdr xmms2-playlist))
-	  (set
-	  (setq song-string (propertize (cadr song)
-					      'face 'xmms2-song
-					      'xmms-num num
-					      'xmms-id (car song)))
-	  (setq current-marker (if (= num current) "-> " "   "))
-	  (setq song-string (concat current-marker song-string "\n"))
-	  (setq song-string (propertize song-string
-					'xmms-num num
-					'xmms-id (car song)))
-	  (insert song-string)
-	  (setq num (1+ num)))
-	(goto-char current-point))))
+      (dolist (song (cdr xmms2-playlist))
+	(setq song-string (xmms2-song-string song))
+	(setq current-marker (if (= num current) "-> " "   "))
+	(setq song-string (concat current-marker song-string "\n"))
+	(setq song-string (propertize song-string
+				      'xmms-num num
+				      'xmms-id (car song)))
+	(insert song-string)
+	(setq num (1+ num)))
+      (goto-char current-point))))
 
 (defun xmms2-list ()
   (interactive)
@@ -245,7 +251,20 @@ nil mean that there is noconnection or there was an error")
 (defface xmms2-song
     '((t :weight bold))
   "Generic face for song"
-      :group 'xmms2)
+  :group 'xmms2)
+
+(defface xmms2-artist
+    '((t :weight bold))
+  "Generic face for song"
+  :group 'xmms2)
+(defface xmms2-title
+    '((t :weight bold))
+  "Generic face for song"
+  :group 'xmms2)
+(defface xmms2-album
+    '((t :slant italic))
+  "Generic face for song"
+  :group 'xmms2)
 
 
 (defun xmms2-playlist-buffer ()
