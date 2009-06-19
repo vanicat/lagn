@@ -227,6 +227,12 @@ nil mean that there is noconnection or there was an error")
       (propertize (cdr song) 'face 'lagn-song)))
 
 
+(defun lagn-playlist-insert-song (string song num)
+  (insert (propertize string
+		      'lagn-num num
+		      'lagn-id (car song)
+		      'lagn-song song)))
+
 
 (defun lagn-callback-list (response)
   (setq lagn-playlist (lagn-decode-list response))
@@ -246,15 +252,10 @@ nil mean that there is noconnection or there was an error")
       (insert "\n\n")
 
       (dolist (song (cdr lagn-playlist))
-	(setq song-string (lagn-song-string song))
-	(setq song-string (concat " " song-string "\n"))
-	(setq song-string (propertize song-string
-				      'lagn-num num
-				      'lagn-id (car song)))
 	(when (= num current)
 	  (setq overlay-arrow-position (point-marker)))
-	(insert song-string)
-
+	(setq song-string (concat " " (lagn-song-string song) "\n"))
+	(lagn-playlist-insert-song song-string song num)
 	(setq num (1+ num)))
       (goto-char current-point))))
 
@@ -293,9 +294,7 @@ nil mean that there is noconnection or there was an error")
 	       (buffer-read-only ()))
 	  (when beg
 	    (goto-char (+ 3 beg))
-	    (insert (propertize (lagn-song-string song)
-				'lagn-id (car song)
-				'lagn-num num))
+	    (lagn-playlist-insert-song (lagn-song-string song) song num)
 	    (delete-region (point)
 			   (1- (next-single-property-change beg 'lagn-id () (point-max))))))))))
 
