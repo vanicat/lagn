@@ -206,4 +206,36 @@ nil mean that there is noconnection or there was an error")
 (xmms2-simple "next")
 (xmms2-simple "prev")
 
+;;; The main playlist
+
+(defface xmms2-song
+    '((t :weight bold))
+  "Generic face for song"
+      :group 'xmms2)
+
+
+(defun xmms2-playlist-buffer ()
+  (let ((buffer (get-buffer-create "*Playlist*")))
+    (with-current-buffer buffer
+      (unless (eq major-mode 'xmms2-playlist-mode)
+	(xmms2-playlist-mode)))
+    buffer))
+
+(define-derived-mode xmms2-playlist-mode special-mode
+  "Playlist"
+  "Major mode for xmm2 playlist
+
+\\{xmms2-playlist-mode-map}"
+  :group 'xmms2)
+
+(progn					;should not be done on reload
+  (suppress-keymap xmms2-playlist-mode-map)
+  (define-key xmms2-playlist-mode-map " " 'xmms2-toggle)
+  (define-key xmms2-playlist-mode-map "n" 'xmms2-next)
+  (define-key xmms2-playlist-mode-map "p" 'xmms2-prev)
+  (define-key xmms2-playlist-mode-map "s" 'xmms2-stop)
+  (define-key xmms2-playlist-mode-map "n" 'xmms2-next)
+  (define-key xmms2-playlist-mode-map "g" 'xmms2-list))
+
+
 (provide 'xmms2)
