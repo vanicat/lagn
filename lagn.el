@@ -269,7 +269,8 @@ nil mean that there is noconnection or there was an error")
 (defun lagn-list ()
   (interactive)
   (lagn-status)
-  (switch-to-buffer (lagn-playlist-buffer))
+  (if (called-interactively-p)
+      (switch-to-buffer (lagn-playlist-buffer)))
   (lagn-call 'lagn-callback-list "list"))
 
 
