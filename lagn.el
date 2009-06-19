@@ -289,6 +289,20 @@ nil mean that there is noconnection or there was an error")
 (lagn-simple "prev")
 
 
+;; TODO: add docstrings
+(defmacro lagn-command-with-patern (command &optional pos xmms-command)
+  (let ((command-name (intern (concat "lagn-" command)))
+	(xmms-command (or xmms-command command)))
+    `(defun ,command-name (pattern)
+       (interactive ,(if pos "sPattern Or Position: " "sPattern: "))
+       (lagn-call 'lagn-callback-ok ,(concat xmms-command " %s") pattern))))
+
+(lagn-command-with-patern "jump" t)
+(lagn-command-with-patern "remove" t)
+(lagn-command-with-patern "add")
+(lagn-command-with-patern "insert" () "add -n")
+
+
 (defun lagn-callback-info (result)
   (let ((song (lagn-decode-info result)))
     (with-current-buffer (lagn-playlist-buffer)
