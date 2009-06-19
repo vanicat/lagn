@@ -184,10 +184,40 @@ nil mean that there is noconnection or there was an error")
   (xmms2-call 'xmms2-callback-current-info "info"))
 
 (defun xmms2-callback-list (response)
-  (setq xmms2-playlist (xmms2-decode-list response)))
+  (setq xmms2-playlist (xmms2-decode-list response))
+  (with-current-buffer (xmms2-playlist-buffer)
+    (let ((buffer-read-only ())
+	  (current-point (point))
+	  (num 1)
+	  (song-string)
+	  (current-marker)
+	  (current (car xmms2-playlist)))
+	(delete-region (point-min) (point-max))
+	(goto-char (point-min))
+	(insert (cond ((eq xmms2-status 'playing) "Playing")
+		      ((eq xmms2-status 'paused) "Paused")
+		      ((eq xmms2-status 'stopped) "Stopped")
+		      ('t "Unkown")))
+	(insert "\n\n")
+
+	(dolist (song (cdr xmms2-playlist))
+	  (set
+	  (setq song-string (propertize (cadr song)
+					      'face 'xmms2-song
+					      'xmms-num num
+					      'xmms-id (car song)))
+	  (setq current-marker (if (= num current) "-> " "   "))
+	  (setq song-string (concat current-marker song-string "\n"))
+	  (setq song-string (propertize song-string
+					'xmms-num num
+					'xmms-id (car song)))
+	  (insert song-string)
+	  (setq num (1+ num)))
+	(goto-char current-point))))
 
 (defun xmms2-list ()
   (interactive)
+  (switch-to-buffer (xmms2-playlist-buffer))
   (xmms2-call 'xmms2-callback-list "list"))
 
 (defun xmms2-callback-ok (response)
