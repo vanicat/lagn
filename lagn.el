@@ -186,8 +186,7 @@ nil mean that there is noconnection or there was an error")
   (setq lagn-callback-queue (append lagn-callback-queue (list callback)))
   (process-send-string lagn-process command)
   (dolist (arg args)
-    (process-send-string lagn-process " ")
-    (process-send-string lagn-process arg))
+    (process-send-string lagn-process (format " %s" arg)))
   (process-send-string lagn-process "\n"))
 
 
