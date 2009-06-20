@@ -166,8 +166,8 @@ nil mean that there is noconnection or there was an error")
 
 
 (defun lagn-init-process ()		;TODO: add option for server and such
-  (setq lagn-process (start-process "nyxmms2" " *nyxmms2*" lagn-command))
   (setq lagn-callback-queue (append lagn-callback-queue (list 'lagn-callback-message)))
+  (setq lagn-process (start-process "nyxmms2" " *nyxmms2*" lagn-command))
   (set-process-filter lagn-process 'lagn-process-filter)
   (set-process-sentinel lagn-process 'lagn-process-sentinel)
   (set-process-query-on-exit-flag lagn-process ())
@@ -184,9 +184,9 @@ nil mean that there is noconnection or there was an error")
 (defun lagn-call (callback command &rest args)
   (lagn-ensure-connected)
   (let ((string (apply 'format command args)))
+    (setq lagn-callback-queue (append lagn-callback-queue (list callback)))
     (process-send-string lagn-process string)
-    (process-send-string lagn-process "\n")
-    (setq lagn-callback-queue (append lagn-callback-queue (list callback)))))
+    (process-send-string lagn-process "\n")))
 
 
 ;;; the commands
