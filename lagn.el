@@ -183,10 +183,12 @@ nil mean that there is noconnection or there was an error")
 
 (defun lagn-call (callback command &rest args)
   (lagn-ensure-connected)
-  (let ((string (apply 'format command args)))
-    (setq lagn-callback-queue (append lagn-callback-queue (list callback)))
-    (process-send-string lagn-process string)
-    (process-send-string lagn-process "\n")))
+  (setq lagn-callback-queue (append lagn-callback-queue (list callback)))
+  (process-send-string lagn-process command)
+  (dolist (arg args)
+    (process-send-string lagn-process " ")
+    (process-send-string lagn-process arg))
+  (process-send-string lagn-process "\n"))
 
 
 ;;; the commands
@@ -299,7 +301,7 @@ nil mean that there is noconnection or there was an error")
 	(xmms-command (or xmms-command command)))
     `(defun ,command-name (pattern)
        (interactive ,(if pos "sPattern Or Position: " "sPattern: "))
-       (lagn-call 'lagn-callback-ok ,(concat xmms-command " %s") pattern)
+       (lagn-call 'lagn-callback-ok ,xmms-command (format "%s" pattern))
        (lagn-list))))
 
 (lagn-command-with-patern "jump" t)
@@ -323,7 +325,7 @@ nil mean that there is noconnection or there was an error")
 
 
 (defun lagn-info (id)
-  (lagn-call 'lagn-callback-info "info id:%d" id))
+  (lagn-call 'lagn-callback-info "info id:" (number-to-string id)))
 
 
 ;;; The main playlist
