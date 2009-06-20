@@ -75,6 +75,8 @@ if xmms2 doesn't know them")
 can be paused, stopped, playing or nil
 nil mean that there is noconnection or there was an error")
 
+(defvar lagn-idle-update-timer nil)
+
 (defvar lagn-info-cache (make-hash-table :weakness 'value))
 
 (defgroup lagn ()
@@ -275,6 +277,12 @@ nil mean that there is noconnection or there was an error")
   (lagn-call 'lagn-callback-list "list"))
 
 
+(defun lagn-list-maybe ()
+  "update the *Playlist* buffer if it's seen"
+  (when (get-buffer-window (lagn-playlist-buffer) t)
+    (lagn-call 'lagn-callback-list "list")))
+
+
 (defun lagn-callback-ok (response)
   ())
 
@@ -366,7 +374,10 @@ nil mean that there is noconnection or there was an error")
   :group 'lagn
   (setq buffer-undo-list t)
   (setq truncate-lines t)
-  (setq buffer-read-only t))
+  (setq buffer-read-only t)
+  (when (timerp lagn-idle-update-timer)
+    (cancel-timer lagn-idle-update-timer))
+  (setq lagn-idle-update-timer (run-with-idle-timer 3 t 'lagn-list-maybe)))
 
 (put 'lagn-playlist-mode 'mode-class 'special)
 
