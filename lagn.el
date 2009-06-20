@@ -404,7 +404,9 @@ nil mean that there is noconnection or there was an error")
 
 (defun lagn-playlist-remove ()
   (interactive)
-  (lagn-remove (get-text-property (point) 'lagn-num)))
+  (if mark-active
+      (apply 'lagn-remove (lagn-playlist-region-song 'lagn-num))
+      (lagn-remove (get-text-property (point) 'lagn-num))))
 
 (progn					;should not be done on reload
   (suppress-keymap lagn-playlist-mode-map)
