@@ -382,6 +382,22 @@ nil mean that there is noconnection or there was an error")
 	(setq num (get-text-property pos 'lagn-num))
 	(lagn-jump num)))))
 
+;; TODO: move song
+
+(defun lagn-playlist-region-song (prop)
+  (let ((beg (min (point) (mark)))
+	(pos (max (point) (mark)))
+	(res ())
+	num)
+    (setq pos (previous-single-property-change pos prop () beg))
+    (while (>= pos beg)
+      (setq num (get-text-property pos prop))
+      (when num (push num res))
+      (setq pos (previous-single-property-change pos prop)))
+    res))
+
+
+
 (defun lagn-playlist-jump ()
   (interactive)
   (lagn-jump (get-text-property (point) 'lagn-num)))
