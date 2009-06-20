@@ -328,7 +328,7 @@ nil mean that there is noconnection or there was an error")
 	    (goto-char beg)
 	    (lagn-playlist-insert-song song num)
 	    (delete-region (point)
-			   (1- (next-single-property-change beg 'lagn-id () (point-max))))))))))
+			   (next-single-property-change beg 'lagn-id () (point-max)))))))))
 
 
 (defun lagn-info (id)
