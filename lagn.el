@@ -89,8 +89,8 @@ nil mean that there is noconnection or there was an error")
   :type 'string)
 
 (defvar lagn-process ())
-(defvar lagn-callback-queue ()
-  "queue of callback to be run from the filter")
+(defvar lagn-process-queue ()
+  "tq queue for lagn")
 
 
 ;;; some function to read anwser from nyxmms2
@@ -140,37 +140,20 @@ nil mean that there is noconnection or there was an error")
 
 (defun lagn-clean ()
   (when (processp lagn-process)
-    (with-current-buffer (process-buffer lagn-process)
-      (delete-region (point-min) (point-max))
-      (setq lagn-callback-queue ())
-      (setq lagn-process ()))))
-
+    (tq-close lagn-process-queue)))
 
 (defun lagn-process-sentinel (proc event)
   ;; Is this only called when the process died ?
   (lagn-clean))
-
-
-(defun lagn-process-filter (proc str)
-  (with-current-buffer (process-buffer lagn-process)
-    (goto-char (process-mark lagn-process))
-    (insert str)
-    (set-marker (process-mark proc) (point))
-    (goto-char (point-min))
-    (while (search-forward-regexp "xmms2> *$" () t)
-      (let ((response (buffer-substring (point-min) (match-beginning 0))))
-	(delete-region (point-min) (match-end 0))
-	(apply (pop lagn-callback-queue) (list response))))))
-
 
 (defun lagn-callback-message (response)
   (message response))
 
 
 (defun lagn-init-process ()		;TODO: add option for server and such
-  (setq lagn-callback-queue (append lagn-callback-queue (list 'lagn-callback-message)))
   (setq lagn-process (start-process "nyxmms2" " *nyxmms2*" lagn-command))
-  (set-process-filter lagn-process 'lagn-process-filter)
+  (setq lagn-process-queue (tq-create lagn-process))
+  (tq-enqueue lagn-process-queue "" "xmms2> " () 'ignore)
   (set-process-sentinel lagn-process 'lagn-process-sentinel)
   (set-process-query-on-exit-flag lagn-process ())
   (lagn-status))
@@ -183,19 +166,23 @@ nil mean that there is noconnection or there was an error")
     (lagn-init-process)))
 
 
+(defun lagn-callback (closure answer)
+  (apply (car closure) (substring answer 0 -7) (cdr closure)))
+
 (defun lagn-call (callback command &rest args)
   (lagn-ensure-connected)
-  (setq lagn-callback-queue (append lagn-callback-queue (list callback)))
-  (process-send-string lagn-process command)
-  (dolist (arg args)
-    (process-send-string lagn-process (format " %s" arg)))
-  (process-send-string lagn-process "\n"))
-
+  (let ((question (with-output-to-string
+		    (princ command)
+		    (dolist (arg args)
+		      (princ " ")
+		      (princ arg))
+		    (princ "\n"))))
+    (tq-enqueue lagn-process-queue question "xmms2> " callback 'lagn-callback)))
 
 ;;; the commands
 
 (defun lagn-exit-process ()
-  (lagn-call 'ignore "exit"))
+  (lagn-call '(ignore) "exit"))
 
 
 (defun lagn-callback-current-info (response)
@@ -218,8 +205,8 @@ nil mean that there is noconnection or there was an error")
 
 (defun lagn-status ()
   (interactive)
-  (lagn-call 'lagn-callback-status "status")
-  (lagn-call 'lagn-callback-current-info "info"))
+  (lagn-call '(lagn-callback-status) "status")
+  (lagn-call '(lagn-callback-current-info) "info"))
 
 
 (defun lagn-song-string (song)
@@ -274,13 +261,13 @@ nil mean that there is noconnection or there was an error")
   (lagn-status)
   (if (called-interactively-p)
       (switch-to-buffer (lagn-playlist-buffer)))
-  (lagn-call 'lagn-callback-list "list"))
+  (lagn-call '(lagn-callback-list) "list"))
 
 
 (defun lagn-list-maybe ()
   "update the *Playlist* buffer if it's seen"
   (when (get-buffer-window (lagn-playlist-buffer) t)
-    (lagn-call 'lagn-callback-list "list")))
+    (lagn-call '(lagn-callback-list) "list")))
 
 
 (defun lagn-callback-ok (response)
@@ -291,7 +278,7 @@ nil mean that there is noconnection or there was an error")
   (let ((command-name (intern (concat "lagn-" command))))
     `(defun ,command-name ()
        (interactive)
-       (lagn-call 'lagn-callback-ok ,command)
+       (lagn-call '(lagn-callback-ok) ,command)
        (lagn-list))))
 
 (lagn-simple "play")
@@ -308,7 +295,7 @@ nil mean that there is noconnection or there was an error")
 	(xmms-command (or xmms-command command)))
     `(defun ,command-name (&rest patterns)
        (interactive ,(if pos "sPattern Or Position: " "sPattern: "))
-       (apply 'lagn-call 'lagn-callback-ok ,xmms-command patterns)
+       (apply 'lagn-call '(lagn-callback-ok) ,xmms-command patterns)
        (lagn-list))))
 
 (lagn-command-with-pattern "jump" t)
@@ -332,7 +319,7 @@ nil mean that there is noconnection or there was an error")
 
 
 (defun lagn-info (id)
-  (lagn-call 'lagn-callback-info "info id:" (number-to-string id)))
+  (lagn-call '(lagn-callback-info) "info id:" (number-to-string id)))
 
 
 ;;; The main playlist
