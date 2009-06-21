@@ -189,7 +189,7 @@ nil mean that there is noconnection or there was an error")
   (setq lagn-now-playing (lagn-decode-info response)))
 
 
-(defun lagn-callback-status (response)
+(defun lagn-callback-status (response noshow)
   (unless (string-match "^\\(Paused\\|Stopped\\|Playing\\):" response)
     (setq lagn-status ())
     (error "wrong status message"))
@@ -200,12 +200,12 @@ nil mean that there is noconnection or there was an error")
      (setq lagn-status 'paused))
     ((string= (match-string 1 response) "Stopped")
      (setq lagn-status 'stopped)))
-  (message response))
+  (unless noshow (message response)))
 
 
-(defun lagn-status ()
+(defun lagn-status (&optional noshow)
   (interactive)
-  (lagn-call '(lagn-callback-status) "status")
+  (lagn-call `(lagn-callback-status ,noshow) "status")
   (lagn-call '(lagn-callback-current-info) "info"))
 
 
@@ -256,18 +256,12 @@ nil mean that there is noconnection or there was an error")
       (goto-char current-point))))
 
 
-(defun lagn-list ()
+(defun lagn-list (&optional noshow)
   (interactive)
-  (lagn-status)
   (if (called-interactively-p)
       (switch-to-buffer (lagn-playlist-buffer)))
-  (lagn-call '(lagn-callback-list) "list"))
-
-
-(defun lagn-list-maybe ()
-  "update the *Playlist* buffer if it's seen"
-  (when (get-buffer-window (lagn-playlist-buffer) t)
-    (lagn-call '(lagn-callback-list) "list")))
+  (lagn-call '(lagn-callback-list) "list")
+  (lagn-status noshow))
 
 
 (defun lagn-callback-ok (response)
@@ -364,7 +358,7 @@ nil mean that there is noconnection or there was an error")
   (setq buffer-read-only t)
   (when (timerp lagn-idle-update-timer)
     (cancel-timer lagn-idle-update-timer))
-  (setq lagn-idle-update-timer (run-with-idle-timer 3 t 'lagn-list-maybe)))
+  (setq lagn-idle-update-timer (run-with-idle-timer 3 t 'lagn-list t)))
 
 (put 'lagn-playlist-mode 'mode-class 'special)
 
