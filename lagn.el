@@ -316,7 +316,7 @@ nil mean that there is noconnection or there was an error")
   (lagn-call '(lagn-callback-info) "info id:" (number-to-string id)))
 
 
-;;; The main playlist
+;;; The song list mode
 
 (defface lagn-song
     '((t :weight bold))
@@ -337,6 +337,56 @@ nil mean that there is noconnection or there was an error")
   :group 'lagn)
 
 
+
+
+
+(define-derived-mode lagn-song-list-mode ()
+  "Song list"
+  "Major mode for lagn for song list
+
+\\{lagn-playlist-mode-map}"
+  :group 'lagn
+  (setq buffer-undo-list t)
+  (setq truncate-lines t)
+  (setq buffer-read-only t))
+
+(put 'lagn-song-list-mode 'mode-class 'special)
+
+
+
+(progn					;should not be done on reload
+  (suppress-keymap lagn-song-list-mode-map)
+  (define-key lagn-song-list-mode-map "q" 'bury-buffer))
+
+
+
+(defun lagn-song-list-region-song (prop)
+  (let ((beg (min (point) (mark)))
+	(pos (max (point) (mark)))
+	(res ())
+	num)
+    (setq pos (previous-single-property-change pos prop () beg))
+    (while (>= pos beg)
+      (setq num (get-text-property pos prop))
+      (when num (push num res))
+      (setq pos (previous-single-property-change pos prop)))
+    res))
+
+
+;; The current playlist mode
+
+
+(define-derived-mode lagn-playlist-mode lagn-song-list-mode ; TODO: move song
+  "Xmms2"
+  "Major mode for the Current Xmms2 playlist
+
+\\{lagn-playlist-mode-map}"
+  :group 'lagn
+  (when (timerp lagn-idle-update-timer)
+    (cancel-timer lagn-idle-update-timer))
+  (setq lagn-idle-update-timer (run-with-idle-timer 3 t 'lagn-list t)))
+
+
 (defun lagn-playlist-buffer ()
   (let ((buffer (get-buffer-create "*Playlist*")))
     (with-current-buffer buffer
@@ -344,23 +394,6 @@ nil mean that there is noconnection or there was an error")
 	(lagn-playlist-mode)))
     buffer))
 
-
-
-
-(define-derived-mode lagn-playlist-mode ()
-  "Playlist"
-  "Major mode for lagn playlist
-
-\\{lagn-playlist-mode-map}"
-  :group 'lagn
-  (setq buffer-undo-list t)
-  (setq truncate-lines t)
-  (setq buffer-read-only t)
-  (when (timerp lagn-idle-update-timer)
-    (cancel-timer lagn-idle-update-timer))
-  (setq lagn-idle-update-timer (run-with-idle-timer 3 t 'lagn-list t)))
-
-(put 'lagn-playlist-mode 'mode-class 'special)
 
 (defun lagn-playlist-middle-click (event)
   (interactive "e")
@@ -374,20 +407,6 @@ nil mean that there is noconnection or there was an error")
 	(setq num (get-text-property pos 'lagn-num))
 	(lagn-jump num)))))
 
-;; TODO: move song
-
-(defun lagn-playlist-region-song (prop)
-  (let ((beg (min (point) (mark)))
-	(pos (max (point) (mark)))
-	(res ())
-	num)
-    (setq pos (previous-single-property-change pos prop () beg))
-    (while (>= pos beg)
-      (setq num (get-text-property pos prop))
-      (when num (push num res))
-      (setq pos (previous-single-property-change pos prop)))
-    res))
-
 
 
 (defun lagn-playlist-jump ()
@@ -397,14 +416,12 @@ nil mean that there is noconnection or there was an error")
 (defun lagn-playlist-remove ()
   (interactive)
   (if mark-active
-      (apply 'lagn-remove (lagn-playlist-region-song 'lagn-num))
+      (apply 'lagn-remove (lagn-song-list-region-song 'lagn-num))
       (lagn-remove (get-text-property (point) 'lagn-num))))
 
 (progn					;should not be done on reload
-  (suppress-keymap lagn-playlist-mode-map)
   (define-key lagn-playlist-mode-map " " 'lagn-toggle)
   (define-key lagn-playlist-mode-map "n" 'lagn-next)
-  (define-key lagn-playlist-mode-map "q" 'bury-buffer)
   (define-key lagn-playlist-mode-map "p" 'lagn-prev)
   (define-key lagn-playlist-mode-map "s" 'lagn-stop)
   (define-key lagn-playlist-mode-map "n" 'lagn-next)
