@@ -45,9 +45,9 @@
 
 ;; you can also add keybinding: for example, for my multimedia keys:
 
-;; (global-set-key [<XF86AudioPlay>] 'lagn-toggle)
-;; (global-set-key [<XF86Back>] 'lagn-prev)
-;; (global-set-key [<XF86Forward>] 'lagn-next)
+;; (global-set-key [XF86AudioPlay] 'lagn-toggle)
+;; (global-set-key [XF86Back] 'lagn-prev)
+;; (global-set-key [XF86Forward] 'lagn-next)
 
 ;;; TODO
 ;; searching
