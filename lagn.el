@@ -374,6 +374,40 @@ nil mean that there is noconnection or there was an error")
     res))
 
 
+
+(define-derived-mode lagn-search-mode lagn-song-list-mode
+  "Search"
+  "Major mode to view search"
+  :group 'lagn)
+
+
+(defun lagn-search-callback (answer)
+  (with-current-buffer (get-buffer "*Lagn-Search*")
+    (let ((buffer-read-only ()))
+      (delete-region (point-min) (point-max))
+      (insert answer)
+      (goto-char (point-min))
+      (forward-line 2)
+      (delete-region (point-min) (point))
+      (while (looking-at "\\([0-9]+\\) *| \\([^|]*[^| ]\\|\\) *| \\([^|]*[^| ]\\|\\) *| \\([^\n]*[^\n ]\\|\\) *\n")
+	(let ((id (string-to-int (match-string 1)))
+	      (artist (match-string 2))
+	      (album (match-string 3))
+	      (title (match-string 4))
+	      song)
+	  (setq song (gethash id lagn-info-cache (list id artist album title "")))
+	  (delete-region (point) (match-end 0))
+	  (lagn-playlist-insert-song song 0))) ; MAYBE to something with the num
+      (when (looking-at "------------------------*\\[.*\\]-*")
+	(delete-region (point) (point-max))))))
+
+(defun lagn-search (search)
+  (interactive "SSearch: ")
+  (pop-to-buffer "*Lagn-Search*")
+  (lagn-search-mode)
+  (lagn-call '(lagn-search-callback) "search" search))
+
+
 ;; The current playlist mode
 
 
