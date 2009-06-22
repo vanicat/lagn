@@ -356,7 +356,8 @@ nil mean that there is noconnection or there was an error")
 
 (progn					;should not be done on reload
   (suppress-keymap lagn-song-list-mode-map)
-  (define-key lagn-song-list-mode-map "q" 'bury-buffer))
+  (define-key lagn-song-list-mode-map "q" 'bury-buffer)
+  (define-key lagn-song-list-mode-map " " 'scroll-up))
 
 
 
