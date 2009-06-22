@@ -211,13 +211,13 @@ nil mean that there is noconnection or there was an error")
 
 (defun lagn-song-string (song)
   (if (listp (cdr song))
-      (destructuring-bind (it artist album title url) song
+      (destructuring-bind (id artist album title url) song
 	(unless artist (setq artist "Unknown"))
 	(unless album (setq album "Unknown"))
 	(unless title (setq title url))
 	(setq artist (propertize artist 'face 'lagn-artist))
-	(setq album (propertize album 'face 'lagn-artist))
-	(setq title (propertize title 'face 'lagn-artist))
+	(setq album (propertize album 'face 'lagn-album))
+	(setq title (propertize title 'face 'lagn-title))
 	(format "%s\n\tby %s from %s" title artist album))
       (propertize (cdr song) 'face 'lagn-song)))
 
