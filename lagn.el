@@ -324,15 +324,15 @@ nil mean that there is noconnection or there was an error")
   :group 'lagn)
 
 (defface lagn-artist
-    '((t :weight bold))
+    '((t :weight bold :inherit shadow))
   "Generic face for song"
   :group 'lagn)
 (defface lagn-title
-    '((t :weight bold))
+    '((t :inherit font-lock-function-name-face))
   "Generic face for song"
   :group 'lagn)
 (defface lagn-album
-    '((t :slant italic))
+    '((t :slant italic  :inherit shadow))
   "Generic face for song"
   :group 'lagn)
 
