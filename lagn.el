@@ -356,6 +356,7 @@ nil mean that there is noconnection or there was an error")
 
 (progn					;should not be done on reload
   (suppress-keymap lagn-song-list-mode-map)
+  (define-key lagn-song-list-mode-map "s" 'lagn-search)
   (define-key lagn-song-list-mode-map "q" 'bury-buffer)
   (define-key lagn-song-list-mode-map " " 'scroll-up))
 
@@ -458,7 +459,6 @@ nil mean that there is noconnection or there was an error")
   (define-key lagn-playlist-mode-map " " 'lagn-toggle)
   (define-key lagn-playlist-mode-map "n" 'lagn-next)
   (define-key lagn-playlist-mode-map "p" 'lagn-prev)
-  (define-key lagn-playlist-mode-map "s" 'lagn-stop)
   (define-key lagn-playlist-mode-map "n" 'lagn-next)
   (define-key lagn-playlist-mode-map "g" 'lagn-list)
   (define-key lagn-playlist-mode-map "\\r" 'lagn-playlist-jump)
