@@ -408,6 +408,18 @@ nil mean that there is noconnection or there was an error")
   (lagn-search-mode)
   (lagn-call '(lagn-search-callback) "search" search))
 
+(defun lagn-search-artist (search)
+  (interactive "SSearch: ")
+  (lagn-search (format "artist: *\"%s\"*" search)))
+
+(defun lagn-search-album (search)
+  (interactive "SSearch: ")
+  (lagn-search (format "album: *\"%s\"*" search)))
+
+(defun lagn-search-title (search)
+  (interactive "SSearch: ")
+  (lagn-search (format "title: *\"%s\"*" search)))
+
 
 ;; The current playlist mode
 
