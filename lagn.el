@@ -353,27 +353,26 @@ nil mean that there is noconnection or there was an error")
 (put 'lagn-song-list-mode 'mode-class 'special)
 
 
+(defun lagn-song-list-selected-song (prop)
+  (if mark-active
+      (let ((beg (min (point) (mark)))
+	    (pos (max (point) (mark)))
+	    (res ())
+	    num)
+	(setq pos (previous-single-property-change pos prop () beg))
+	(while (>= pos beg)
+	  (setq num (get-text-property pos prop))
+	  (when num (push num res))
+	  (setq pos (previous-single-property-change pos prop)))
+	res)
+      (list (get-text-property (point) prop))))
+
 
 (progn					;should not be done on reload
   (suppress-keymap lagn-song-list-mode-map)
   (define-key lagn-song-list-mode-map "s" 'lagn-search)
   (define-key lagn-song-list-mode-map "q" 'bury-buffer)
   (define-key lagn-song-list-mode-map " " 'scroll-up))
-
-
-
-(defun lagn-song-list-region-song (prop)
-  (let ((beg (min (point) (mark)))
-	(pos (max (point) (mark)))
-	(res ())
-	num)
-    (setq pos (previous-single-property-change pos prop () beg))
-    (while (>= pos beg)
-      (setq num (get-text-property pos prop))
-      (when num (push num res))
-      (setq pos (previous-single-property-change pos prop)))
-    res))
-
 
 
 (define-derived-mode lagn-search-mode lagn-song-list-mode
@@ -463,11 +462,11 @@ nil mean that there is noconnection or there was an error")
   (interactive)
   (lagn-jump (get-text-property (point) 'lagn-num)))
 
+
 (defun lagn-playlist-remove ()
   (interactive)
-  (if mark-active
-      (apply 'lagn-remove (lagn-song-list-region-song 'lagn-num))
-      (lagn-remove (get-text-property (point) 'lagn-num))))
+  (apply 'lagn-remove (lagn-song-list-selected-song 'lagn-num)))
+
 
 (progn					;should not be done on reload
   (define-key lagn-playlist-mode-map " " 'lagn-toggle)
