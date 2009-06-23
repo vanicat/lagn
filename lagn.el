@@ -368,9 +368,34 @@ nil mean that there is noconnection or there was an error")
       (list (get-text-property (point) prop))))
 
 
+(defun lagn-add-ids-to-current (nextp &rest songs-id)
+  (let ((query (with-output-to-string
+
+		   (princ "add")
+		 (when nextp
+		   (princ " --next"))
+		 (dolist (song songs-id)
+		   (princ " id: ")
+		   (princ song)))))
+    (lagn-call 'lagn-callback-ok query)))
+
+
+(defun lagn-append-songs ()
+  "append selected song at the end of the current playlist"
+  (interactive)
+  (apply 'lagn-add-ids-to-current () (lagn-song-list-selected-song 'lagn-id)))
+
+(defun lagn-insert-songs ()
+  "insert selected songs after the current song in the current playlist"
+  (interactive)
+  (apply 'lagn-add-ids-to-current t (lagn-song-list-selected-song 'lagn-id)))
+
+
 (progn					;should not be done on reload
   (suppress-keymap lagn-song-list-mode-map)
   (define-key lagn-song-list-mode-map "s" 'lagn-search)
+  (define-key lagn-song-list-mode-map "i" 'lagn-insert-songs)
+  (define-key lagn-song-list-mode-map "a" 'lagn-append-songs)
   (define-key lagn-song-list-mode-map "q" 'bury-buffer)
   (define-key lagn-song-list-mode-map " " 'scroll-up))
 
