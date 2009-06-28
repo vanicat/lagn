@@ -306,6 +306,9 @@ nil mean that there is noconnection or there was an error")
 	  (setq beg (text-property-any (point-min) (point-max) 'lagn-id (car song)))
 	  (while beg
 	    (setq num (get-text-property beg 'lagn-num))
+
+	    (setcdr (nth num lagn-playlist) song)
+
 	    (goto-char beg)
 	    (lagn-playlist-insert-song song num)
 	    (delete-region (point)
