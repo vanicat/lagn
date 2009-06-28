@@ -353,6 +353,14 @@ nil mean that there is noconnection or there was an error")
 
 (put 'lagn-song-list-mode 'mode-class 'special)
 
+(defun lagn-beggining-of-song ()
+  (interactive)
+  (goto-char (previous-single-property-change (1+ (point)) 'lagn-num)))
+
+(defun lagn-end-of-song ()
+  (interactive)
+  (goto-char (1- (next-single-property-change (point) 'lagn-num))))
+
 
 (defun lagn-song-list-selected-song (prop)
   (if mark-active
