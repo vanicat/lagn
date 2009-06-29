@@ -215,6 +215,7 @@ nil mean that there is noconnection or there was an error")
      (setq lagn-status 'paused))
     ((string= (match-string 1 response) "Stopped")
      (setq lagn-status 'stopped)))
+  (lagn-update-playlist-status)
   (unless noshow (message response)))
 
 
