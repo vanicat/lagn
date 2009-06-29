@@ -232,14 +232,16 @@ nil mean that there is noconnection or there was an error")
 
 
 (defun lagn-callback-list (response)
-  (setq lagn-playlist (lagn-decode-list response))
   (with-current-buffer (lagn-playlist-buffer)
-    (let ((buffer-read-only ())
+    (let ((new-list (lagn-decode-list response))
+	  (old-list lagn-playlist)
+	  (inhibit-read-only t)
 	  (current-point (point))
 	  (num 1)
 	  (song-string)
 	  (current-marker)
 	  (current (car lagn-playlist)))
+      (setq lagn-playlist new-list)
       (delete-region (point-min) (point-max))
       (goto-char (point-min))
       (insert (cond ((eq lagn-status 'playing) "Playing")
@@ -350,6 +352,8 @@ nil mean that there is noconnection or there was an error")
 
 \\{lagn-playlist-mode-map}"
   :group 'lagn
+  (make-local-variable 'lagn-playlist)
+  (setq lagn-playlist ())
   (setq buffer-undo-list t)
   (setq truncate-lines t)
   (setq buffer-read-only t))
