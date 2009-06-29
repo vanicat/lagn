@@ -189,6 +189,21 @@ nil mean that there is noconnection or there was an error")
   (setq lagn-now-playing (lagn-decode-info response)))
 
 
+(defun lagn-update-playlist-status ()
+  (with-current-buffer (lagn-playlist-buffer)
+    (let ((inhibit-read-only t))
+      (save-excursion
+	(goto-char (point-min))
+	(forward-line 2)
+	(delete-region (point-min) (point))
+	(insert (cond ((eq lagn-status 'playing) "Playing")
+		      ((eq lagn-status 'paused) "Paused")
+		      ((eq lagn-status 'stopped) "Stopped")
+		      ('t "Unkown")))
+	(insert "\n\n")))))
+
+
+
 (defun lagn-callback-status (response noshow)
   (unless (string-match "^\\(Paused\\|Stopped\\|Playing\\):" response)
     (setq lagn-status ())
@@ -244,11 +259,10 @@ nil mean that there is noconnection or there was an error")
       (setq lagn-playlist new-list)
       (delete-region (point-min) (point-max))
       (goto-char (point-min))
-      (insert (cond ((eq lagn-status 'playing) "Playing")
-		    ((eq lagn-status 'paused) "Paused")
-		    ((eq lagn-status 'stopped) "Stopped")
-		    ('t "Unkown")))
-      (insert "\n\n")
+
+      (lagn-update-playlist-status)
+
+      (goto-char (point-max))
 
       (dolist (song (cdr lagn-playlist))
 	(when (= num current)
