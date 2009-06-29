@@ -270,19 +270,21 @@ nil mean that there is noconnection or there was an error")
   ())
 
 
-(defmacro lagn-simple (command)
+(defmacro lagn-simple (command modlistp)
   (let ((command-name (intern (concat "lagn-" command))))
     `(defun ,command-name ()
        (interactive)
        (lagn-call '(lagn-callback-ok) ,command)
-       (lagn-list))))
+       ,(if modlistp
+	    `(lagn-list t)
+	    `(lagn-status t)))))
 
-(lagn-simple "play")
-(lagn-simple "pause")
-(lagn-simple "stop")
-(lagn-simple "toggle")
-(lagn-simple "next")
-(lagn-simple "prev")
+(lagn-simple "play" ())
+(lagn-simple "pause" ())
+(lagn-simple "stop" ())
+(lagn-simple "toggle" ())
+(lagn-simple "next" t)
+(lagn-simple "prev" t)
 
 
 ;; TODO: add docstrings
