@@ -532,7 +532,7 @@ nil mean that there is noconnection or there was an error")
   (define-key lagn-playlist-mode-map "p" 'lagn-prev)
   (define-key lagn-playlist-mode-map "n" 'lagn-next)
   (define-key lagn-playlist-mode-map "g" 'lagn-list)
-  (define-key lagn-playlist-mode-map "\\r" 'lagn-playlist-jump)
+  (define-key lagn-playlist-mode-map "\r" 'lagn-playlist-jump)
   (define-key lagn-playlist-mode-map "d" 'lagn-playlist-remove)
   (define-key lagn-playlist-mode-map [mouse-2] 'lagn-playlist-middle-click))
 
