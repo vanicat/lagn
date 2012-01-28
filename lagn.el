@@ -1,7 +1,6 @@
-;; (C) 2009 Rémi Vanicat <vanicat@debian.org>
+;;; lagn.el --- A music player for Emacs that uses xmms2 as its backend
 
-;; lagn.el is a music player for Emacs that uses xmms2 as its backend
-;; lagn stand for Lacking A Good Name
+;; (C) 2009 Rémi Vanicat <vanicat@debian.org>
 
 ;;     This program is free software; you can redistribute it and/or
 ;;     modify it under the terms of the GNU General Public License as
@@ -19,6 +18,9 @@
 ;;     Boston, MA 02110-1301 USA
 
 ;;; Commentary
+
+;; A music player for Emacs that uses xmms2 as its backend.
+;; Lagn stand for Lacking A Good Name.
 
 ;; For know, only some command for simple control of xmms2.
 
