@@ -2,6 +2,9 @@
 
 ;; (C) 2009 Rémi Vanicat <vanicat@debian.org>
 
+;;     2012 Sudarshan S. Chawathe <chaw@eip10.org>
+;;     Added mainly volume-control functions.
+
 ;;     This program is free software; you can redistribute it and/or
 ;;     modify it under the terms of the GNU General Public License as
 ;;     published by the Free Software Foundation; either version 3 of
@@ -32,6 +35,8 @@
 ;;  n		lagn-next
 ;;  p		lagn-prev
 ;;  s		lagn-stop
+;;  [		lagn-volumes-down
+;;  ]		lagn-volumes-up
 
 ;; you can also directly use M-x lagn-play to start playback, and
 ;; M-x lagn-status to see the current playing situation
@@ -58,6 +63,7 @@
 ;; a mode to view/edit collection
 ;; a mode to view current status
 ;; maybe status bar integration
+;; maybe volume-control/balance of individual channels; functions mostly ready.
 
 
 (defvar lagn-playlist nil
@@ -81,6 +87,11 @@ nil mean that there is noconnection or there was an error")
 
 (defvar lagn-info-cache (make-hash-table :weakness 'value))
 
+(defvar lagn-volumes nil
+  "Volume levels of available channels as returned by the `server volume'
+command of the nyxmms2 client, represented as ((channel-name . level) ...),
+or nil if unknown. Channel names are strings and levels are integers.")
+
 (defgroup lagn ()
   "lagn is a client for xmms2 written in emacs lisp")
 
@@ -89,6 +100,12 @@ nil mean that there is noconnection or there was an error")
   "The command to run for xmms2 command. Must be API compatible with nyxmms2"
   :group 'lagn
   :type 'string)
+
+(defcustom lagn-volumes-delta
+  5
+  "Integer amount by which to bump volume up or down in keystroke commands."
+  :group 'lagn
+  :type 'integer)
 
 (defvar lagn-process ())
 (defvar lagn-process-queue ()
@@ -142,6 +159,7 @@ nil mean that there is noconnection or there was an error")
 
 (defun lagn-clean ()
   (when (processp lagn-process)
+    (cancel-timer lagn-update-timer)
     (tq-close lagn-process-queue)))
 
 (defun lagn-process-sentinel (proc event)
@@ -529,6 +547,65 @@ nil mean that there is noconnection or there was an error")
   (apply 'lagn-remove (lagn-song-list-selected-song 'lagn-num)))
 
 
+(defun lagn-volumes-set-all (v)
+"Set volumes of all channels to v (an integer) using nyxmms2's `server volume'
+command. See also lagn-volumes-set."
+  (lagn-call '(lagn-callback-ok)
+	     (concat "server volume " (number-to-string v)))
+  (lagn-volumes-get))
+
+(defun lagn-volumes-set (volumes)
+  "Set channel volumes using given alist volumes, which must have the form
+ ((channel-name . volume)...), as used by lagn-volumes.
+See also the simpler lagn-volumes-set-all."
+  (let ((volume-prefix "server volume --channel "))
+    (dolist (p volumes)
+      (lagn-call '(lagn-callback-ok)
+		 (concat volume-prefix (car p) " " 
+			 (number-to-string (cdr p)))))))
+
+(defun lagn-volumes-get ()
+  (lagn-call '(lagn-callback-volumes-get) "server volume"))
+
+(defun lagn-callback-volumes-get (response)
+  "Update lagn-volumes using response, which must be the output of the
+`server volume' command issued to nyxmms2."
+  (setq lagn-volumes (lagn-decode-volumes response)))
+
+(defun lagn-decode-volumes (volumes-string)
+  "Return volume levels parsed from the given input string, which must be of
+the form channel-name-1 = level-1 channel-name-2 = level-2 ...
+The result is ((channel-name-1 . level-1) (channel-name-2 . level-2) ...)
+where the levels are represented as integers. Fragile."
+  (let ((level-regexp "^\\([^ ]+\\) *= *\\([0-9]+\\) *$") (r '()))
+    (with-temp-buffer
+      (insert volumes-string)
+      (goto-char (point-min))
+      (while (search-forward-regexp level-regexp () t)
+	(push (cons (match-string 1) (string-to-int (match-string 2))) r))
+      (nreverse r))))
+
+(defun lagn-volumes-increase-all (delta low-lim high-lim)
+  "Increase all volume levels by the given amount, bounded by low- and high-lim."
+  (defun bump (v)
+    (min high-lim (max low-lim (+ v delta))))
+  (unless lagn-volumes (lagn-volumes-get))
+  (setq lagn-volumes
+	(mapcar (lambda (p) (cons (car p) (bump (cdr p)))) lagn-volumes))
+  (lagn-volumes-set lagn-volumes))
+
+(defun lagn-volumes-up ()
+  "Increase all channel volumes by lagn-volumes-delta, staying in the
+ range [0, 100]. Convenient for keybinding with auto-repeat."
+  (interactive)
+  (lagn-volumes-increase-all lagn-volumes-delta 0 100))
+
+(defun lagn-volumes-down ()
+  "Decrease all channel volumes by lagn-volumes-delta, staying in the
+range [0, 100]. Convenient for keybinding with auto-repeat."
+  (interactive)
+  (lagn-volumes-increase-all (- lagn-volumes-delta) 0 100))
+
 (progn					;should not be done on reload
   (define-key lagn-playlist-mode-map " " 'lagn-toggle)
   (define-key lagn-playlist-mode-map "n" 'lagn-next)
@@ -537,7 +614,11 @@ nil mean that there is noconnection or there was an error")
   (define-key lagn-playlist-mode-map "g" 'lagn-list)
   (define-key lagn-playlist-mode-map "\r" 'lagn-playlist-jump)
   (define-key lagn-playlist-mode-map "d" 'lagn-playlist-remove)
-  (define-key lagn-playlist-mode-map [mouse-2] 'lagn-playlist-middle-click))
+  (define-key lagn-playlist-mode-map [mouse-2] 'lagn-playlist-middle-click)
+  (define-key lagn-playlist-mode-map "[" 'lagn-volumes-down)
+  (define-key lagn-playlist-mode-map "]" 'lagn-volumes-up))
 
 
 (provide 'lagn)
+
+
